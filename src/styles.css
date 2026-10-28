@@ -1,19 +1,39 @@
 :root {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  color: #172033;
-  background: #f5f6f8;
+  color: var(--text);
+  background: var(--page-bg);
   font-synthesis: none;
+  --page-bg: #f5f6f8;
   --surface: #fff;
+  --field-bg: #fff;
   --text: #172033;
   --muted: #667085;
   --border: #d8dde6;
+  --hover-bg: #f0f2f5;
+  --task-border: #e7eaf0;
+  --task-hover: #fafbfc;
   --blue: #2563eb;
   --blue-dark: #1d4ed8;
   --red: #c93434;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #121722;
+  --surface: #1c2432;
+  --field-bg: #151c28;
+  --text: #edf1f7;
+  --muted: #a0aabd;
+  --border: #394456;
+  --hover-bg: #2a3445;
+  --task-border: #343e50;
+  --task-hover: #232d3c;
+  --blue: #4b82ff;
+  --blue-dark: #83a8ff;
+}
+
 * { box-sizing: border-box; }
-html, body { min-width: 320px; min-height: 100%; background: #f5f6f8; }
+html, body { min-width: 320px; min-height: 100%; background: var(--page-bg); }
 body { margin: 0; }
 button, input { font: inherit; }
 button { color: inherit; }
@@ -24,19 +44,22 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(37,99,235,.2
 .auth-page, .app-page { min-height: 100vh; padding: 32px 20px; display: grid; place-items: center; }
 .auth-card, .app-panel { width: min(100%, 680px); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(16,24,40,.07); }
 .auth-card { max-width: 400px; padding: 32px; }
+.auth-topbar { display: flex; justify-content: flex-end; margin: -12px -12px 14px; }
+.theme-toggle { min-height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; }
+.theme-toggle:hover { background: var(--hover-bg); }
 .auth-heading { margin: 0 0 24px; }
 .auth-heading h1, .app-content h1 { margin: 0; font-size: 26px; line-height: 1.2; font-weight: 650; letter-spacing: -.025em; }
 .auth-heading p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
 .field { display: block; margin-bottom: 18px; }
 .field > span:first-child { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; }
-.field input, .quick-add input, .edit-form input { width: 100%; height: 46px; padding: 0 13px; color: var(--text); background: #fff; border: 1px solid var(--border); border-radius: 7px; }
+.field input, .quick-add input, .edit-form input { width: 100%; height: 46px; padding: 0 13px; color: var(--text); background: var(--field-bg); border: 1px solid var(--border); border-radius: 7px; }
 .field input:hover, .quick-add input:hover, .edit-form input:hover { border-color: #aab2c0; }
 .field input:focus, .quick-add input:focus, .edit-form input:focus { border-color: var(--blue); outline: 3px solid rgba(37,99,235,.14); }
 .field input::placeholder, .quick-add input::placeholder { color: #8b93a2; }
 .password-wrap { display: block; position: relative; }
 .password-wrap input { padding-right: 50px; }
 .icon-button { width: 44px; height: 44px; display: inline-grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; }
-.icon-button:hover { background: #f0f2f5; color: var(--text); }
+.icon-button:hover { background: var(--hover-bg); color: var(--text); }
 .password-toggle { position: absolute; right: 1px; top: 1px; }
 .primary-button { min-height: 46px; padding: 0 20px; border: 0; border-radius: 7px; background: var(--blue); color: white; font-weight: 650; cursor: pointer; }
 .primary-button:hover:not(:disabled) { background: var(--blue-dark); }
@@ -67,11 +90,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(37,99,235,.2
 .mutation-error { margin: 14px 0; }
 .load-error button { min-height: 44px; display: inline-flex; align-items: center; gap: 5px; padding: 0 4px; border: 0; background: none; color: #922b2b; font-weight: 650; cursor: pointer; }
 .task-list { list-style: none; margin: 0; padding: 0; }
-.task-row { min-height: 62px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e7eaf0; transition: opacity .15s, background .15s; }
-.task-row:hover { background: #fafbfc; }
+.task-row { min-height: 62px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--task-border); transition: opacity .15s, background .15s; }
+.task-row:hover { background: var(--task-hover); }
 .task-row--busy { opacity: .55; }
 .task-check { position: relative; flex: 0 0 44px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: transparent; color: white; cursor: pointer; }
-.task-check::before { content: ""; position: absolute; width: 20px; height: 20px; border: 1.5px solid #8a94a5; border-radius: 5px; background: white; }
+.task-check::before { content: ""; position: absolute; width: 20px; height: 20px; border: 1.5px solid #8a94a5; border-radius: 5px; background: var(--field-bg); }
 .task-check:hover::before { border-color: var(--blue); }
 .task-check[aria-pressed="true"]::before { background: var(--blue); border-color: var(--blue); }
 .task-check svg { position: relative; z-index: 1; }

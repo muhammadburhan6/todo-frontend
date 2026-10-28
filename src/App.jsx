@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { tasksLoaded, taskAdded, taskUpdated, taskRemoved } from './store/tasksSlice.js'
 import { apiRequest, authStore } from './api.js'
+import { AuthProvider, useAuth } from './AuthContext.jsx'
+import { useTheme } from './ThemeContext.jsx'
 
 const FILTERS = ['all', 'active', 'completed']
 
@@ -55,8 +59,26 @@ function Icon({ name, size = 18 }) {
   )
 }
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  const nextTheme = theme === 'light' ? 'dark' : 'light'
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${nextTheme} theme`}
+      title={`Switch to ${nextTheme} theme`}
+    >
+      {theme === 'light' ? 'Dark mode' : 'Light mode'}
+    </button>
+  )
+}
+
 // Login aur signup dono isi component mein handle hote hain.
-function AuthScreen({ onAuthenticated }) {
+function AuthScreen() {
+  const { setUser } = useAuth()
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -97,7 +119,7 @@ function AuthScreen({ onAuthenticated }) {
 
       // Token save hota hai taa-ke refresh ke baad user logged in rahe.
       authStore.set(data.token)
-      onAuthenticated(data.user)
+      setUser(data.user)
     } catch (requestError) {
       setError(requestError.message)
     } finally {
@@ -108,6 +130,7 @@ function AuthScreen({ onAuthenticated }) {
   return (
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="auth-title">
+        <div className="auth-topbar"><ThemeToggle /></div>
         <div className="auth-heading">
           <h1 id="auth-title">
             {isSignup ? 'Create your account' : 'Log in'}
@@ -303,8 +326,10 @@ function EmptyState({ filter }) {
 }
 
 // Login ke baad Todo workspace yahan render hota hai.
-function Workspace({ user, onLogout }) {
-  const [tasks, setTasks] = useState([])
+function Workspace() {
+  const { user, logout } = useAuth()
+  const dispatch = useDispatch()
+  const tasks = useSelector((state) => state.tasks.items)
   const [filter, setFilter] = useState('all')
   const [newTitle, setNewTitle] = useState('')
   const [loading, setLoading] = useState(true)
@@ -320,7 +345,7 @@ function Workspace({ user, onLogout }) {
 
     apiRequest('/tasks')
       .then((items) => {
-        if (componentIsActive) setTasks(items)
+        if (componentIsActive) dispatch(tasksLoaded(items))
       })
       .catch((requestError) => {
         if (componentIsActive && requestError.status !== 401) {
@@ -361,7 +386,7 @@ function Workspace({ user, onLogout }) {
 
     try {
       const items = await apiRequest('/tasks')
-      setTasks(items)
+      dispatch(tasksLoaded(items))
     } catch (requestError) {
       if (requestError.status !== 401) setLoadError(requestError.message)
     } finally {
@@ -384,7 +409,7 @@ function Workspace({ user, onLogout }) {
         body: JSON.stringify({ title: cleanTitle }),
       })
 
-      setTasks((currentTasks) => [newTask, ...currentTasks])
+      dispatch(taskAdded(newTask))
       setNewTitle('')
       setFilter('all')
     } catch (requestError) {
@@ -405,9 +430,7 @@ function Workspace({ user, onLogout }) {
         body: JSON.stringify(changes),
       })
 
-      setTasks((currentTasks) =>
-        currentTasks.map((task) => (task.id === taskId ? updatedTask : task)),
-      )
+      dispatch(taskUpdated({ id: taskId, task: updatedTask }))
       return true
     } catch (requestError) {
       if (requestError.status !== 401) setMutationError(requestError.message)
@@ -423,9 +446,7 @@ function Workspace({ user, onLogout }) {
 
     try {
       await apiRequest(`/tasks/${taskId}`, { method: 'DELETE' })
-      setTasks((currentTasks) =>
-        currentTasks.filter((task) => task.id !== taskId),
-      )
+      dispatch(taskRemoved(taskId))
     } catch (requestError) {
       if (requestError.status !== 401) setMutationError(requestError.message)
     } finally {
@@ -437,9 +458,10 @@ function Workspace({ user, onLogout }) {
     <main className="app-page">
       <section className="app-panel" aria-labelledby="tasks-title">
         <header className="app-header">
+          <ThemeToggle />
           <div className="account">
             <span title={user?.email}>{user?.email}</span>
-            <button type="button" onClick={onLogout}>
+            <button type="button" onClick={logout}>
               Log out
             </button>
           </div>
@@ -566,14 +588,17 @@ export default function App() {
     setUser(null)
   }
 
-  if (restoringSession) {
-    return (
-      <main className="restore-screen">
-        <p>Loading…</p>
-      </main>
-    )
-  }
-
-  if (user) return <Workspace user={user} onLogout={logout} />
-  return <AuthScreen onAuthenticated={setUser} />
+  return (
+    <AuthProvider value={{ user, setUser, logout }}>
+      {restoringSession ? (
+        <main className="restore-screen">
+          <p>Loading…</p>
+        </main>
+      ) : user ? (
+        <Workspace />
+      ) : (
+        <AuthScreen />
+      )}
+    </AuthProvider>
+  )
 }
