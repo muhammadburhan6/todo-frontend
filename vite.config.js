@@ -6,9 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/signup': 'http://127.0.0.1:5000',
-      '/login': 'http://127.0.0.1:5000',
-      '/me': 'http://127.0.0.1:5000',
       '/tasks': 'http://127.0.0.1:5000',
     },
   },

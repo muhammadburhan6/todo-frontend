@@ -1,5 +1,5 @@
 // Browser mein login token save karne ke liye ek fixed key.
-const TOKEN_KEY = 'daymark_token'
+const TOKEN_KEY = 'todo-app_token'
 
 // Token read, save aur delete karne ke simple helper functions.
 export const authStore = {
@@ -37,7 +37,7 @@ export async function apiRequest(path, options = {}) {
     // 401 ka matlab session expire/invalid hai: token remove karke login dikhayein.
     if (response.status === 401 && token) {
       authStore.clear()
-      window.dispatchEvent(new CustomEvent('daymark:unauthorized'))
+      window.dispatchEvent(new CustomEvent('todo-app:unauthorized'))
     }
 
     const message = data?.message || 'Something went wrong. Please try again.'

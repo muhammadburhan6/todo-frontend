@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext(null)
-const THEME_KEY = 'daymark_theme'
+const THEME_KEY = 'todo-app_theme'
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {

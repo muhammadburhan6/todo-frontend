@@ -1,4 +1,4 @@
-# Daymark frontend
+# Todo-app frontend
 
 A React + Vite interface for the existing Flask Todo API.
 
