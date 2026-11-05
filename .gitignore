@@ -1,0 +1,7 @@
+.env
+atlas-credentials.env
+todo-app-fc056-firebase-adminsdk-fbsvc-b92bc1885b.json
+__pycache__/
+*.py[cod]
+.venv/
+venv/

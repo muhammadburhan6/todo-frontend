@@ -1,0 +1,11 @@
+{
+  "name": "todo-app-todo",
+  "private": true,
+  "scripts": {
+    "dev": "node dev.js",
+    "dv": "npm run dev"
+  },
+  "dependencies": {
+    "@redux-devtools/extension": "^4.0.0"
+  }
+}
