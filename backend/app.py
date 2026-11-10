@@ -1,15 +1,12 @@
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 
-from infrastructure.repositories.mongo_task_repository import MongoTaskRepository
-from infrastructure.repositories.mongo_user_repository import MongoUserRepository
-from infrastructure.repositories.firestore_task_repository import FirestoreTaskRepository
-from infrastructure.repositories.firestore_user_repository import FirestoreUserRepository
-from infrastructure.repositories.in_memory_task_repository import InMemoryTaskRepository
-from infrastructure.repositories.in_memory_user_repository import InMemoryUserRepository
-from infrastructure.repositories.postgres_task_repository import PostgresTaskRepository
-from infrastructure.repositories.postgres_user_repository import PostgresUserRepository
+# The shared .env file stays in the repository root beside frontend/ and backend/.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 from application.services.task_service import TaskService
 from application.services.auth_service import AuthService
@@ -22,34 +19,49 @@ from presentation.routes.auth_routes import create_auth_routes
 
 
 app = Flask(__name__)
-def create_repositories():
-    """Select persistence explicitly; MongoDB is the normal application mode."""
-    mode = os.getenv("DATABASE_MODE", "mongo").strip().lower()
+def create_repositories(mode=None):
+    """Create both auth and task repositories for the selected .env provider."""
+    mode = (mode if mode is not None else os.getenv("DATABASE_MODE", "mongodb")).strip().lower()
+
     if mode == "memory":
-        return (
-            InMemoryTaskRepository(),
-            InMemoryUserRepository(),
-            "In-memory (temporary)",
-        )
+        from infrastructure.repositories.in_memory_task_repository import InMemoryTaskRepository
+        from infrastructure.repositories.in_memory_user_repository import InMemoryUserRepository
+
+        return InMemoryTaskRepository(), InMemoryUserRepository(), "In-memory (temporary)"
+
     if mode == "firebase":
-        task_repository = FirestoreTaskRepository()
-        user_repository = FirestoreUserRepository()
-        return task_repository, user_repository, "Firebase Firestore (tasks, users)"
+        from infrastructure.repositories.firestore_task_repository import FirestoreTaskRepository, get_firestore_client
+        from infrastructure.repositories.firestore_user_repository import FirestoreUserRepository
+
+        client = get_firestore_client()
+        task_repository = FirestoreTaskRepository(client=client)
+        user_repository = FirestoreUserRepository(client=client)
+        return task_repository, user_repository, "Firebase Firestore"
+
     if mode in {"postgres", "postgresql"}:
+        from infrastructure.repositories.postgres_task_repository import PostgresTaskRepository
+        from infrastructure.repositories.postgres_user_repository import PostgresUserRepository
+
         task_repository = PostgresTaskRepository()
         user_repository = PostgresUserRepository(connection=task_repository.connection)
         return task_repository, user_repository, "PostgreSQL"
 
-    if mode not in {"mongo", "mongodb"}:
-        raise RuntimeError("DATABASE_MODE must be 'mongo', 'firebase', 'postgres', or 'memory'")
+    if mode in {"mongo", "mongodb"}:
+        from infrastructure.repositories.mongo_task_repository import MongoTaskRepository
+        from infrastructure.repositories.mongo_user_repository import MongoUserRepository
 
-    task_repository = MongoTaskRepository()
-    user_repository = MongoUserRepository(client=task_repository.client)
-    return task_repository, user_repository, "MongoDB"
+        task_repository = MongoTaskRepository()
+        user_repository = MongoUserRepository(client=task_repository.client)
+        return task_repository, user_repository, "MongoDB"
+
+    raise RuntimeError(
+        "DATABASE_MODE in the root .env must be one of: mongodb, firebase, postgres, or memory"
+    )
 
 
-# Build the MongoDB adapters unless memory mode was explicitly requested.
+# Auth and task repositories always come from the same selected provider.
 task_repository, user_repository, database_backend = create_repositories()
+print(f"Database provider: {database_backend}")
 
 
 # Services

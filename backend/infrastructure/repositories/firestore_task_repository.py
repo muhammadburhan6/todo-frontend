@@ -17,6 +17,8 @@ def get_firestore_client():
     if not key_path:
         raise RuntimeError("FIREBASE_CREDENTIALS is missing from .env")
     key_file = Path(key_path).expanduser()
+    if not key_file.is_absolute():
+        key_file = PROJECT_ROOT / key_file
     if not key_file.is_file():
         raise RuntimeError("Firebase service account key file was not found")
     if not firebase_admin._apps:
