@@ -1,7 +1,17 @@
+# Environment variables
 .env
 atlas-credentials.env
-todo-app-fc056-firebase-adminsdk-fbsvc-b92bc1885b.json
+
+# Secrets / credentials
+secrets/
+*.json.key
+
+# Python
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Node
+node_modules/
+dist/

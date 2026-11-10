@@ -15,9 +15,10 @@ DEFAULT_SECRET = "todo_app_jwt_secret_key_2026_super_secure_32bytes!"
 
 class AuthService:
 
-    def __init__(self, user_repository, secret_key=None):
+    def __init__(self, user_repository, secret_key=None, database_mode="MongoDB"):
         self.user_repository = user_repository
         self.secret_key = secret_key or os.getenv("JWT_SECRET_KEY", DEFAULT_SECRET)
+        self.database_mode = database_mode
 
     # =========================
     # TOKEN HELPERS
@@ -27,6 +28,7 @@ class AuthService:
         payload = {
             "user_id": user.id,
             "email": user.email,
+            "database_mode": self.database_mode,
             "iat": datetime.now(timezone.utc),
             "exp": datetime.now(timezone.utc) + timedelta(days=7)
         }
@@ -34,7 +36,10 @@ class AuthService:
 
     def decode_token(self, token):
         try:
-            return jwt.decode(token, self.secret_key, algorithms=["HS256"])
+            payload = jwt.decode(token, self.secret_key, algorithms=["HS256"])
+            if payload.get("database_mode") != self.database_mode:
+                raise ValueError("Database mode changed; please log in again")
+            return payload
         except jwt.ExpiredSignatureError:
             raise ValueError("Token has expired")
         except jwt.InvalidTokenError:

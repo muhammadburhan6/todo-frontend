@@ -4,8 +4,12 @@ from flask import Flask, render_template, request, jsonify
 
 from infrastructure.repositories.mongo_task_repository import MongoTaskRepository
 from infrastructure.repositories.mongo_user_repository import MongoUserRepository
+from infrastructure.repositories.firestore_task_repository import FirestoreTaskRepository
+from infrastructure.repositories.firestore_user_repository import FirestoreUserRepository
 from infrastructure.repositories.in_memory_task_repository import InMemoryTaskRepository
 from infrastructure.repositories.in_memory_user_repository import InMemoryUserRepository
+from infrastructure.repositories.postgres_task_repository import PostgresTaskRepository
+from infrastructure.repositories.postgres_user_repository import PostgresUserRepository
 
 from application.services.task_service import TaskService
 from application.services.auth_service import AuthService
@@ -27,8 +31,17 @@ def create_repositories():
             InMemoryUserRepository(),
             "In-memory (temporary)",
         )
-    if mode != "mongo":
-        raise RuntimeError("DATABASE_MODE must be 'mongo' or 'memory'")
+    if mode == "firebase":
+        task_repository = FirestoreTaskRepository()
+        user_repository = FirestoreUserRepository()
+        return task_repository, user_repository, "Firebase Firestore (tasks, users)"
+    if mode in {"postgres", "postgresql"}:
+        task_repository = PostgresTaskRepository()
+        user_repository = PostgresUserRepository(connection=task_repository.connection)
+        return task_repository, user_repository, "PostgreSQL"
+
+    if mode not in {"mongo", "mongodb"}:
+        raise RuntimeError("DATABASE_MODE must be 'mongo', 'firebase', 'postgres', or 'memory'")
 
     task_repository = MongoTaskRepository()
     user_repository = MongoUserRepository(client=task_repository.client)
@@ -41,7 +54,7 @@ task_repository, user_repository, database_backend = create_repositories()
 
 # Services
 task_service = TaskService(task_repository)
-auth_service = AuthService(user_repository)
+auth_service = AuthService(user_repository, database_mode=database_backend)
 
 
 # Controllers
@@ -91,3 +104,5 @@ def api_status():
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
+
+
