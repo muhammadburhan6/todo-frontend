@@ -4,7 +4,7 @@ from pathlib import Path
 import psycopg
 from dotenv import load_dotenv
 
-from domain.entities.task import Task
+from domain.entities.task_entities import Task
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

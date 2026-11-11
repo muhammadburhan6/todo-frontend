@@ -3,8 +3,8 @@ import hashlib
 
 from google.api_core.exceptions import AlreadyExists
 
-from domain.entities.user import User
-from infrastructure.repositories.firestore_task_repository import get_firestore_client
+from domain.entities.auth_entities import User
+from infrastructure.repositories.firebase.firestore_task_repository import get_firestore_client
 
 
 class FirestoreUserRepository:

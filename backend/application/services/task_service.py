@@ -1,5 +1,5 @@
 from application.dtos.task_dto import CreateTaskInput, UpdateTaskInput
-from domain.entities.task import Task
+from domain.entities.task_entities import Task
 
 
 class TaskService:

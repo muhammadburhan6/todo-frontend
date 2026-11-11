@@ -30,8 +30,8 @@ def create_repositories(mode=None):
         return InMemoryTaskRepository(), InMemoryUserRepository(), "In-memory (temporary)"
 
     if mode == "firebase":
-        from infrastructure.repositories.firestore_task_repository import FirestoreTaskRepository, get_firestore_client
-        from infrastructure.repositories.firestore_user_repository import FirestoreUserRepository
+        from infrastructure.repositories.firebase.firestore_task_repository import FirestoreTaskRepository, get_firestore_client
+        from infrastructure.repositories.firebase.firestore_user_repository import FirestoreUserRepository
 
         client = get_firestore_client()
         task_repository = FirestoreTaskRepository(client=client)
@@ -39,16 +39,16 @@ def create_repositories(mode=None):
         return task_repository, user_repository, "Firebase Firestore"
 
     if mode in {"postgres", "postgresql"}:
-        from infrastructure.repositories.postgres_task_repository import PostgresTaskRepository
-        from infrastructure.repositories.postgres_user_repository import PostgresUserRepository
+        from infrastructure.repositories.postgresql.postgres_task_repository import PostgresTaskRepository
+        from infrastructure.repositories.postgresql.postgres_user_repository import PostgresUserRepository
 
         task_repository = PostgresTaskRepository()
         user_repository = PostgresUserRepository(connection=task_repository.connection)
         return task_repository, user_repository, "PostgreSQL"
 
     if mode in {"mongo", "mongodb"}:
-        from infrastructure.repositories.mongo_task_repository import MongoTaskRepository
-        from infrastructure.repositories.mongo_user_repository import MongoUserRepository
+        from infrastructure.repositories.mongodb.mongo_task_repository import MongoTaskRepository
+        from infrastructure.repositories.mongodb.mongo_user_repository import MongoUserRepository
 
         task_repository = MongoTaskRepository()
         user_repository = MongoUserRepository(client=task_repository.client)

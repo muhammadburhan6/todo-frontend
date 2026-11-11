@@ -1,7 +1,6 @@
-from domain.repositories.task_repository import TaskRepository
 
 
-class InMemoryTaskRepository(TaskRepository):
+class InMemoryTaskRepository:
 
     def __init__(self):
         self.tasks = []

@@ -5,7 +5,7 @@ import firebase_admin
 from dotenv import load_dotenv
 from firebase_admin import credentials, firestore
 
-from domain.entities.task import Task
+from domain.entities.task_entities import Task
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

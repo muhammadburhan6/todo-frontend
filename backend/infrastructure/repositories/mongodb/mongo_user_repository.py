@@ -7,15 +7,14 @@ from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import DuplicateKeyError
 from dotenv import load_dotenv
 
-from domain.repositories.user_repository import UserRepository
-from domain.entities.user import User
+from domain.entities.auth_entities import User
 
 
 # Load environment variables
 load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
-class MongoUserRepository(UserRepository):
+class MongoUserRepository:
 
     def __init__(self, client=None):
 

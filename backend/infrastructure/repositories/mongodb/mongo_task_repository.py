@@ -5,15 +5,14 @@ import certifi
 from pymongo import MongoClient, ReturnDocument
 from dotenv import load_dotenv
 
-from domain.repositories.task_repository import TaskRepository
-from domain.entities.task import Task
+from domain.entities.task_entities import Task
 
 
 # Load environment variables
 load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
-class MongoTaskRepository(TaskRepository):
+class MongoTaskRepository:
 
     def __init__(self, client=None):
 

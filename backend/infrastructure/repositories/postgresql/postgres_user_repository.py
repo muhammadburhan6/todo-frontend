@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 from psycopg.errors import UniqueViolation
 
-from domain.entities.user import User
-from infrastructure.repositories.postgres_task_repository import get_postgres_connection
+from domain.entities.auth_entities import User
+from infrastructure.repositories.postgresql.postgres_task_repository import get_postgres_connection
 
 
 class PostgresUserRepository:

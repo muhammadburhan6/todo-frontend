@@ -6,7 +6,7 @@ import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.dtos.auth_dto import AuthResponseDTO
-from domain.entities.user import User
+from domain.entities.auth_entities import User
 
 
 EMAIL_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"

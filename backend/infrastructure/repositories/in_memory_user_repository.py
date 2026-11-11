@@ -1,10 +1,9 @@
 from datetime import datetime, timezone
 
-from domain.entities.user import User
-from domain.repositories.user_repository import UserRepository
+from domain.entities.auth_entities import User
 
 
-class InMemoryUserRepository(UserRepository):
+class InMemoryUserRepository:
 
     def __init__(self):
         self.users = []

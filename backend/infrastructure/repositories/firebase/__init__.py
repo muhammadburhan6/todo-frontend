@@ -1,0 +1,1 @@
+"""Firebase repository adapters."""
