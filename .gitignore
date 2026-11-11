@@ -19,3 +19,7 @@ dist/
 /frontend/HOOKS_GUIDE.md
 /frontend/vite.config.js
 /freellmapi/
+# Local agent skills and editor settings
+/.agents/
+/skills-lock.json
+/.vscode/
