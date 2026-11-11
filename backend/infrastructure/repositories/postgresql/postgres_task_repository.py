@@ -26,7 +26,7 @@ def get_postgres_connection():
         raise RuntimeError(
             "DATABASE_URL in .env is still a placeholder. Replace it with your "
             "Supabase PostgreSQL URI (Project Settings > Database > Connection string), "
-            "or set DATABASE_MODE=memory to run temporarily without a database."
+            "or configure a valid MongoDB, Firebase, or PostgreSQL provider."
         )
     connection = psycopg.connect(database_url)
     with connection.cursor() as cursor:

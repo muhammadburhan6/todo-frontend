@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify
 
 # The shared .env file stays in the repository root beside frontend/ and backend/.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -22,12 +22,6 @@ app = Flask(__name__)
 def create_repositories(mode=None):
     """Create both auth and task repositories for the selected .env provider."""
     mode = (mode if mode is not None else os.getenv("DATABASE_MODE", "mongodb")).strip().lower()
-
-    if mode == "memory":
-        from infrastructure.repositories.in_memory_task_repository import InMemoryTaskRepository
-        from infrastructure.repositories.in_memory_user_repository import InMemoryUserRepository
-
-        return InMemoryTaskRepository(), InMemoryUserRepository(), "In-memory (temporary)"
 
     if mode == "firebase":
         from infrastructure.repositories.firebase.firestore_task_repository import FirestoreTaskRepository, get_firestore_client
@@ -55,7 +49,7 @@ def create_repositories(mode=None):
         return task_repository, user_repository, "MongoDB"
 
     raise RuntimeError(
-        "DATABASE_MODE in the root .env must be one of: mongodb, firebase, postgres, or memory"
+        "DATABASE_MODE in the root .env must be one of: mongodb, firebase, or postgres"
     )
 
 
@@ -84,11 +78,7 @@ app.register_blueprint(auth_routes)
 
 @app.route("/")
 def home():
-    # If API client requests JSON specifically
-    if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
-        return api_status()
-    # Otherwise render the visual web interface in browser
-    return render_template("index.html")
+    return api_status()
 
 
 @app.route("/api")

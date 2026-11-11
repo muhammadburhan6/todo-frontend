@@ -13,7 +13,6 @@ Supported values and required connection settings:
 | `mongodb` or `mongo` | MongoDB | `MONGODB_URI` |
 | `firebase` | Firebase Firestore | `FIREBASE_CREDENTIALS` (service-account JSON path; relative paths resolve from the repository root) |
 | `postgres` or `postgresql` | PostgreSQL | `DATABASE_URL` (`POSTGRESQL_URI` is also accepted) |
-| `memory` | Temporary in-memory storage | None; records are cleared when the backend restarts |
 
 Only the selected provider is initialized. Each provider stores its own users and tasks; changing `DATABASE_MODE` does not copy, merge, or delete records in the other providers. Switching back to a provider makes its existing records available again. Users must sign in again after a provider change because tokens are tied to the active provider.
 
