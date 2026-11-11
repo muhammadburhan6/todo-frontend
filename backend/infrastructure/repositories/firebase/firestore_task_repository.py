@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import firebase_admin
+from google.cloud.firestore_v1.base_query import FieldFilter
 from dotenv import load_dotenv
 from firebase_admin import credentials, firestore
 
@@ -63,7 +64,7 @@ class FirestoreTaskRepository:
         if user_id is None:
             return []
         snapshots = self.collection.where(
-            "user_id", "==", self._user_key(user_id)
+            filter=FieldFilter("user_id", "==", self._user_key(user_id))
         ).stream()
         return [self._task(snapshot) for snapshot in snapshots]
 
