@@ -1,4 +1,4 @@
-from flask import jsonify, request, g
+from flask import jsonify, request, g, current_app
 
 from application.dtos.auth_dto import AuthRequestDTO
 
@@ -84,6 +84,30 @@ class AuthController:
             return jsonify({
                 "message": f"Login failed: {str(e)}"
             }), 500
+
+    def google_login(self):
+        data = request.get_json(silent=True) or {}
+        credential = data.get("credential")
+        if not credential:
+            return jsonify({"message": "Google credential is required"}), 400
+        try:
+            result = self.auth_service.login_with_google(credential).to_dict()
+            return jsonify({
+                "message": "Google login successful",
+                "token": result["token"],
+                "user": result["user"],
+            }), 200
+        except ValueError as exc:
+            cause = exc.__cause__
+            if current_app.debug and cause and str(exc) == "Google credential is invalid or expired":
+                message = f"Google verification failed ({type(cause).__name__}): {cause}"
+            else:
+                message = str(exc)
+            return jsonify({"message": message}), 401
+        except RuntimeError as exc:
+            return jsonify({"message": str(exc)}), 500
+        except Exception:
+            return jsonify({"message": "Google login failed"}), 500
 
     # =========================
     # PROFILE / ME (Protected)
